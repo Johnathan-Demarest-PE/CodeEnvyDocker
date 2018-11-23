@@ -1,20 +1,32 @@
-# Use an official Python runtime as a parent image
-FROM python:2.7-slim
+#
+# Ubuntu Dockerfile
+#
+# https://github.com/dockerfile/ubuntu
+#
 
-# Set the working directory to /app
-WORKDIR /app
+# Pull base image.
+FROM ubuntu:14.04
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Install.
+RUN \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get install -y build-essential && \
+  apt-get install -y software-properties-common && \
+  apt-get install -y byobu curl git htop man unzip vim wget && \
+  rm -rf /var/lib/apt/lists/*
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Add files.
+ADD root/.bashrc /root/.bashrc
+ADD root/.gitconfig /root/.gitconfig
+ADD root/.scripts /root/.scripts
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Set environment variables.
+ENV HOME /root
 
-# Define environment variable
-ENV NAME World
+# Define working directory.
+WORKDIR /root
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Define default command.
+CMD ["bash"]
